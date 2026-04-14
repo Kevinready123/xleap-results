@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学员成绩展示 · XLeap Global 海马倍越</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0d1117;--ink-soft:#374151;--ink-muted:#6b7280;--gold:#c9974a;--gold-light:#f5e6cd;--gold-pale:#fdf8f1;--accent:#1a3a5c;--accent-light:#e8eef5;--white:#ffffff;--border:#e5e7eb;--radius:16px;--shadow:0 2px 20px rgba(0,0,0,.06);--shadow-hover:0 8px 40px rgba(0,0,0,.12)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans','Noto Serif SC',sans-serif;background:#f9f7f4;color:var(--ink);min-height:100vh}
+.hero{background:var(--accent);color:#fff;position:relative;overflow:hidden;padding:72px 24px 64px;text-align:center}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(201,151,74,.25) 0%,transparent 70%)}
+.hero-badge{display:inline-block;font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);border:1px solid rgba(201,151,74,.4);padding:6px 16px;border-radius:100px;margin-bottom:24px;position:relative}
+.hero h1{font-family:'Noto Serif SC',serif;font-size:clamp(28px,5vw,52px);font-weight:700;line-height:1.2;margin-bottom:16px;position:relative}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero p{font-size:16px;color:rgba(255,255,255,.72);max-width:520px;margin:0 auto 40px;line-height:1.7;position:relative}
+.stats-row{display:flex;justify-content:center;gap:48px;flex-wrap:wrap;position:relative}
+.stat{text-align:center}
+.stat-num{font-family:'DM Sans',sans-serif;font-size:36px;font-weight:600;color:var(--gold);display:block;line-height:1}
+.stat-label{font-size:12px;color:rgba(255,255,255,.55);margin-top:6px;letter-spacing:.5px}
+.filter-section{position:sticky;top:0;z-index:100;background:rgba(249,247,244,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:16px 24px}
+.filter-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.filter-label{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--ink-muted);margin-right:4px;white-space:nowrap}
+.filter-btn{padding:8px 18px;border-radius:100px;border:1.5px solid var(--border);background:#fff;color:var(--ink-soft);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap}
+.filter-btn:hover{border-color:var(--gold);color:var(--gold)}
+.filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.result-bar{max-width:1200px;margin:0 auto;padding:20px 24px 4px;font-size:13px;color:var(--ink-muted)}
+.result-bar strong{color:var(--ink)}
+.grid-section{max-width:1200px;margin:0 auto;padding:8px 24px 80px;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px}
+.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;display:flex;flex-direction:column;border:1px solid var(--border)}
+.card:hover{transform:translateY(-4px);box-shadow:var(--shadow-hover)}
+.card-top{padding:20px 20px 16px;flex:1}
+.card-tag-row{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.tag{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:6px}
+.tag-TOEFL{background:#dbeafe;color:#1d4ed8}.tag-雅思{background:#dcfce7;color:#166534}
+.tag-SAT{background:#fce7f3;color:#9d174d}.tag-GRE{background:#ede9fe;color:#5b21b6}
+.tag-IGCSE{background:#ffedd5;color:#9a3412}.tag-A-Level{background:#cffafe;color:#155e75}
+.tag-AP{background:#f0fdf4;color:#14532d}.tag-竞赛{background:#fef9c3;color:#854d0e}
+.tag-SSAT{background:#f5f3ff;color:#4c1d95}.tag-DET{background:#fdf4ff;color:#701a75}
+.tag-录取{background:#fff7ed;color:#9a3412}
+.card-date{font-size:11px;color:var(--ink-muted);margin-left:auto}
+.card-headline{font-family:'Noto Serif SC',serif;font-size:22px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.3}
+.card-score{font-size:13px;color:var(--ink-soft);line-height:1.6;margin-bottom:12px;white-space:pre-line}
+.card-story{font-size:13px;color:var(--ink-muted);line-height:1.7;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.card-img-placeholder{margin:0 20px 16px;background:var(--gold-pale);border:1.5px dashed var(--gold);border-radius:10px;height:96px;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:12px;gap:8px}
+.card-bottom{padding:12px 20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-board{font-size:11px;color:var(--ink-muted);font-weight:500}
+.read-more{font-size:12px;font-weight:600;color:var(--accent);display:flex;align-items:center;gap:4px}
+.read-more svg{transition:transform .2s}
+.card:hover .read-more svg{transform:translateX(3px)}
+.modal-overlay{position:fixed;inset:0;background:rgba(13,17,23,.7);z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:#fff;border-radius:20px;max-width:620px;width:100%;max-height:88vh;overflow-y:auto;transform:translateY(20px) scale(.97);transition:transform .25s}
+.modal-overlay.open .modal{transform:none}
+.modal-header{padding:28px 28px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff;border-radius:20px 20px 0 0;display:flex;align-items:flex-start;gap:16px}
+.modal-close{margin-left:auto;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.modal-close:hover{background:var(--border)}
+.modal-body{padding:24px 28px 32px}
+.modal-headline{font-family:'Noto Serif SC',serif;font-size:26px;font-weight:700;line-height:1.3;margin-bottom:4px}
+.modal-score-box{background:var(--gold-pale);border:1px solid var(--gold-light);border-radius:12px;padding:16px 20px;margin-bottom:20px;font-size:14px;color:var(--ink-soft);line-height:1.8;white-space:pre-wrap}
+.modal-img-zone{background:var(--gold-pale);border:2px dashed var(--gold);border-radius:12px;padding:32px;text-align:center;margin-bottom:20px;color:var(--gold)}
+.modal-img-zone p{font-size:13px;margin-top:8px;color:var(--ink-muted)}
+.modal-section-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-muted);margin-bottom:10px}
+.modal-story{font-size:15px;line-height:1.9;color:var(--ink-soft)}
+.modal-meta{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;padding-top:20px;border-top:1px solid var(--border)}
+.meta-chip{font-size:12px;background:var(--accent-light);color:var(--accent);padding:5px 12px;border-radius:100px;font-weight:500}
+footer{text-align:center;padding:40px 24px;font-size:13px;color:var(--ink-muted);border-top:1px solid var(--border);background:#fff}
+footer strong{color:var(--accent)}
+.empty-state{grid-column:1/-1;text-align:center;padding:80px 24px;color:var(--ink-muted)}
+.empty-state svg{margin-bottom:16px;opacity:.3}
+.empty-state h3{font-size:18px;color:var(--ink-soft);margin-bottom:8px}
+@media(max-width:600px){.stats-row{gap:28px}.stat-num{font-size:28px}.grid-section{grid-template-columns:1fr;padding:8px 16px 60px}.modal-body,.modal-header{padding-left:20px;padding-right:20px}.hero{padding:56px 20px 48px}}
+</style>
+</head>
+<body>
+<section class="hero">
+  <div class="hero-badge">XLeap Global · 海马倍越国际事业部</div>
+  <h1>真实学员 · <em>真实成绩</em></h1>
+  <p>每一份成绩单都是学员与倍越共同努力的见证。以可溯源的数据，为您的升学信心护航。</p>
+  <div class="stats-row">
+    <div class="stat"><span class="stat-num">58</span><div class="stat-label">真实案例</div></div>
+    <div class="stat"><span class="stat-num">11</span><div class="stat-label">考试类型</div></div>
+    <div class="stat"><span class="stat-num">95%</span><div class="stat-label">达成目标分</div></div>
+    <div class="stat"><span class="stat-num">G5</span><div class="stat-label">顶尖名校录取</div></div>
+  </div>
+</section>
+<div class="filter-section">
+  <div class="filter-inner">
+    <span class="filter-label">筛选</span>
+    <button class="filter-btn active" data-tag="全部">全部</button>
+    <button class="filter-btn" data-tag="GRE">GRE</button>
+    <button class="filter-btn" data-tag="SAT">SAT</button>
+    <button class="filter-btn" data-tag="TOEFL">托福</button>
+    <button class="filter-btn" data-tag="雅思">雅思</button>
+    <button class="filter-btn" data-tag="AP">AP</button>
+    <button class="filter-btn" data-tag="IGCSE">IGCSE</button>
+    <button class="filter-btn" data-tag="A-Level">A-Level</button>
+    <button class="filter-btn" data-tag="竞赛">竞赛</button>
+    <button class="filter-btn" data-tag="SSAT">SSAT</button>
+    <button class="filter-btn" data-tag="DET">DET</button>
+    <button class="filter-btn" data-tag="录取">录取</button>
+  </div>
+</div>
+<div class="result-bar">显示 <strong id="shown-count">58</strong> 条案例</div>
+<div class="grid-section" id="card-grid"></div>
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div><div id="modal-tag-row" style="margin-bottom:10px"></div><div class="modal-headline" id="modal-headline"></div></div>
+      <button class="modal-close" id="modal-close"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="#374151" stroke-width="2" stroke-linecap="round"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section-label">成绩详情</div>
+      <div class="modal-score-box" id="modal-score"></div>
+      <div class="modal-img-zone" id="modal-img-zone">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        <p>成绩单图片（即将上线）</p>
+      </div>
+      <div class="modal-section-label">学员故事</div>
+      <div class="modal-story" id="modal-story"></div>
+      <div class="modal-meta" id="modal-meta"></div>
+    </div>
+  </div>
+</div>
+<footer><strong>XLeap Global · 海马倍越国际事业部</strong><br><span style="margin-top:6px;display:block">专注 A-Level / AP / IB / SAT / GRE / 雅思 / 托福 · 一站式国际升学服务</span></footer>
+<script>
+const CASES=[{id:1,type:"托福",tag:"TOEFL",headline:"托福 107分",score_short:"TOEFL iBT 合肥考场\nC1等级（对应旧版107分）",score_full:"TOEFL iBT 合肥考场\nC1等级，对应旧版分数103-109（即107分）",story:"学员A于2026年1月加入倍越国际托福冲刺班，目标冲击105+。倍越为其定制"诊断—精讲—模考—复盘"四阶方案，由资深托福教师全程带教，聚焦听力笔记逻辑与口语Task 2独立表达结构。课后配备学管师每日督学、作文/口语逐题批改，并同步推送高频题库与错题精析。2月7日出分，A斩获TOEFL iBT 107分（合肥考场），达C1等级，成功匹配美本Top 30语言要求。倍越全程陪伴式服务，助力高效提分。",date:"2026年2月7日",board:"",subjects:""},{id:2,type:"托福",tag:"TOEFL",headline:"托福 118分",score_short:"总分 118 / 120\nR30 L30 S29 W29",score_full:"总分 118（满分120）\n阅读30 / 听力30 / 口语29 / 写作29\n较首测提升12分",story:"学员A于2026年3月在倍越国际参加托福冲刺集训，全程由资深托福讲师一对一诊断薄弱项，重点突破听力笔记法与独立写作逻辑链。倍越为其定制12小时模考精讲+4次全真机考复盘，结合动态错题库与口语AI实时反馈系统。2026年4月2日成绩出炉：总分118（阅读30、听力30、口语29、写作29），较首测提升12分。倍越全程学管师跟踪学习节奏，定期向家长同步进度，真正实现"精准提分、透明服务"。",date:"2026年4月2日",board:"",subjects:""},{id:3,type:"托福",tag:"TOEFL",headline:"托福 118分",score_short:"总分 118 / 120\n四科全部 29 分以上",score_full:"118（满分 120）\n阅读30 / 听力30 / 口语29 / 写作29\n4科全部单项29+",story:"学员A于2025年9月加入倍越国际托福全阶培优计划，目标冲刺115+。倍越为其定制"诊断—精讲—模考—复盘"四阶方案，由8年教龄托福听力/阅读双科名师全程带教，针对弱项强化学术场景笔记法与长难句拆解。口语写作实行1v3小班精批+AI语音即时反馈，每周2次1v1高频纠音与逻辑重构。考前30天启动全真机考模考闭环，精准押中独立写作题库更新题。2026年1月18日出分，斩获118分（R30/L30/S29/W29），4科全部单项29+。",date:"2026年1月18日",board:"",subjects:""},{id:4,type:"托福",tag:"TOEFL",headline:"托福 110分",score_short:"总分 110 / 120\n首考达标目标院校要求",score_full:"110（满分 120）\n阅读30 / 听力30 / 口语25 / 写作25\n托福首考达标",story:"学员A于2024年3月加入倍越国际托福全程班，目标冲刺110+。倍越为其定制"诊断—精讲—模考—复盘"四阶方案，配备资深托福教师一对一分析弱项，并针对性强化听力笔记法与独立写作逻辑链训练。学管师全程跟踪学习节奏，每周反馈进度、调整任务；模考系统精准对标ETS题型，三次全真模考平均分从92提升至112。2024年6月22日，A同学托福首考斩获110分（R30/L30/S25/W25），顺利达标目标院校语言要求。",date:"2024年6月22日",board:"",subjects:""},{id:5,type:"托福",tag:"TOEFL",headline:"托福 103分",score_short:"总分 103 / 120\nR28 L27 S23 W25",score_full:"103/120\n阅读28 / 听力27 / 口语23 / 写作25",story:"学员A于2026年3月参加托福考试，取得103分（阅读28、听力27、口语23、写作25）。在倍越国际为期12周的托福冲刺班中，A同学接受定制化学习方案：每周4次小班精讲+2次1对1写作/口语模考反馈，教师团队针对其综合题逻辑薄弱、独立写作论据单薄等问题，专项训练学术笔记法与结构化表达模板。倍越学管师全程跟进作业提交、错题归因及模考进度，3次全真模考分数稳步提升（首测82→终测105）。",date:"",board:"",subjects:""},{id:6,type:"托福",tag:"TOEFL",headline:"托福 114分",score_short:"总分 114 / 120\nR30 L29 S25 W30",score_full:"阅读30 / 听力29 / 口语25 / 写作30\n总分 114/120",story:"学员A于2024年3月25日托福出分114分（R30/L29/S25/W30），全程在倍越国际完成备考。倍越为其定制"听说读写四维提分方案"，由8年托福教学经验教师一对一授课，针对口语薄弱环节开展高频模考+即时反馈训练；写作采用"逻辑链+语料库"双轨提升法。学管师全程跟踪学习节奏，每周生成进度报告并动态调整计划。",date:"2024年3月25日",board:"",subjects:""},{id:7,type:"DET（多邻国）",tag:"DET",headline:"DET 125分",score_short:"总分 125 / 160（优秀）\nLiteracy 130 · Comprehension 130",score_full:"总分：125（满分160，优秀水平）\nLiteracy（读写）130 / Comprehension（理解）130\nConversation（对话）100 / Production（表达）90\n满足英美多所TOP50院校语言要求",story:"学员A于2024年2月在倍越国际完成为期8周的DET冲刺集训，全程由资深标化教师1对3小班授课，精准聚焦Literacy与Comprehension提分模块，并结合AI口语陪练系统强化Conversation与Production弱项。倍越学管师全程跟踪学习进度，定制每日任务清单与模考复盘报告。2024年2月29日出分：总分125（优秀水平），Literacy与Comprehension均达130，成功达标英美多所TOP50院校语言要求。",date:"2024年2月29日",board:"",subjects:""},{id:8,type:"Conditional Offer",tag:"录取",headline:"布里斯托大学 录取Offer",score_short:"机械工程 Conditional Offer\n入学：2026年9月",score_full:"机械工程 (Mechanical Engineering, H301)\n设计工程 (Design Engineering, 28G3)\n布里斯托大学 Conditional Offer\n入学时间：2026年9月",story:"学员A通过倍越国际定制的A-Level机械工程（H301）与设计工程（28G3）双课程强化方案，完成12个月系统学习。倍越为其匹配剑桥背景导师，针对性突破力学建模与CAD实践难点；同步开展雅思一对一冲刺，6周提升至总分6.5（写作6.0）。全程学管师跟踪进度，每月生成能力雷达图与调整建议。2026年9月入学前，学员成功获布里斯托大学机械工程专业Conditional Offer，成绩达标率100%。",date:"入学：2026年9月",board:"帝国理工学院",subjects:""},{id:9,type:"SAT",tag:"SAT",headline:"SAT 1500分",score_short:"总分 1500 / 1600\n数学 800（满分）",score_full:"1500分（满分1600）\n阅读与写作 700 / 数学 800（满分）",story:"学员A于2026年1月加入倍越国际SAT冲刺班，目标冲击1500+。倍越为其定制"阅读写作+数学双轨提分方案"：阅读写作由前CB阅卷官带队精讲题型逻辑与高阶修辞；数学则由MIT背景导师全程带练难题模块，每日错题追踪+周度模考分析。3月14日出分，A斩获1500分（R&W 700 + Math 800），数学满分。",date:"2026年3月14日",board:"",subjects:""},{id:10,type:"SAT",tag:"SAT",headline:"SAT 1580分",score_short:"总分 1580 / 1600\n数学 800（满分）",score_full:"总分：1580（满分1600）\n阅读与写作 780 / 数学 800（满分）",story:"学员A于2025年暑期加入倍越国际SAT全科强化项目，全程由倍越资深教师1对6小班授课，精准定位其阅读逻辑薄弱与写作结构松散问题。考前两周开展全真模考+即时讲评，重点突破图表题与代数建模难点。2025年10月4日出分：总分1580（R&W 780，Math 800）。",date:"2025年10月4日",board:"",subjects:""},{id:11,type:"SAT",tag:"SAT",headline:"SAT 1540分",score_short:"总分 1540 / 1600\n较首考提升 180 分",score_full:"总分：1540（满分1600）\n阅读与写作 750 / 数学 790\n较首考提升180分",story:"学员A于2026年3月参加SAT考试，总分1540（阅读与写作750，数学790），较首考提升180分。在倍越国际为期12周的SAT冲刺班中，学员A接受定制化学习方案：每周4小时精讲+2小时模考分析，重点突破语法逻辑链与高阶函数建模；倍越学管师全程跟踪错题归因，三次全真模考后针对性补漏代数推理。",date:"",board:"",subjects:""},{id:12,type:"竞赛",tag:"竞赛",headline:"SPC 银奖",score_short:"BPhO 高级物理挑战赛 银奖\n牛津大学物理系 · 英国物理学会联合主办",score_full:"Silver Award（银奖）\nBPhO 线上高级物理挑战赛\n由牛津大学物理系、英国物理学会（IOP）联合主办\n全球最具权威性的高中生物理竞赛之一",story:"学员A就读于上海某国际学校，高二时通过倍越国际精准诊断，锁定物理建模与竞赛解题思维短板。倍越为其定制BPhO SPC专项课程：由牛津物理博士领衔授课，结合历年真题拆解+全真模考+逐题语音批注；配备学管师全程跟踪学习节奏，定期推送IOP官网最新资源与公式速记卡。2026年1月SPC成绩公布，学员斩获Silver Award（银奖），同步提升AP Physics C与A-Level Physics成绩。",date:"2026年1月",board:"",subjects:"物理"},{id:13,type:"竞赛",tag:"竞赛",headline:"SPC 金奖",score_short:"BPhO 高级物理挑战赛 金奖\n较入学前提升两个奖项等级",score_full:"Gold Award（金奖）\nBPhO 高级物理挑战赛\n较入学前提升两个奖项等级\n后续获帝国理工物理专业预录取",story:"学员A在倍越国际系统学习SPC高级物理挑战赛课程，全程由牛津物理系背景导师一对一授课，聚焦力学与电磁学高阶解题策略。倍越为其定制3个月冲刺计划，含12次真题精讲+6次模考批改+错题动态追踪。2025年3月成绩公布，A斩获Gold Award（金奖），较入学前提升两个奖项等级。该生后续通过倍越衔接的STEP与PAT专项课，成功获得帝国理工物理专业预录取。",date:"2025年3月",board:"",subjects:"物理"},{id:14,type:"竞赛",tag:"竞赛",headline:"AMC10 全球前5%",score_short:"AMC10 全球前 5%\n成功达到 AIME 晋级线",score_full:"AMC10 全球前5%\n成功达到AIME晋级线\n就读：Ivy Experimental School（常春藤实验学校）",story:"倍越学员A于2024年参加AMC10数学竞赛，获全球前5%优异成绩，成功达到AIME晋级线。该生就读于Ivy Experimental School，入班时数学基础扎实但竞赛解题策略薄弱。倍越为其定制"AMC冲刺+思维建模"双轨课程：每周2次小班精讲（覆盖数论、组合高频难点），辅以个性化错题追踪系统与全真模考复盘服务。最终A同学在2024年11月考试中稳定发挥，逻辑严谨性与时间分配能力显著提升。",date:"2024年",board:"",subjects:"数学"},{id:15,type:"SSAT",tag:"SSAT",headline:"SSAT 2049分",score_short:"2049 / 2130（超越 86% 考生）\n数学 710 满分",score_full:"2049分（满分2130），超越86%同年考生\n数学710满分（全国平均640分）\n成功锁定美国Top20寄宿中学录取",story:"学员A（初三）在倍越国际系统备考SSAT，前期通过诊断测试精准定位数学强项与阅读弱项。倍越为其定制"SSAT冲刺90天计划"：每周3节1v6小班精讲+2节1v1阅读策略课，搭配自研《SSAT高频题库》与错题智能追踪系统。学习期间学管师全程督学，定期模考复盘、动态调整方案。最终于2026年3月下旬出分，斩获2049分（数学710满分），超越86%考生，成功锁定美国Top 20寄宿中学录取资格。",date:"",board:"",subjects:"数学"},{id:16,type:"A-Level",tag:"A-Level",headline:"A-Level 化学 UMS 177",score_short:"AS Chemistry UMS 177 / 200\n化学达 A* 潜力线",score_full:"AS 阶段化学 + 物理\nAS Chemistry 总评：UMS 177（满分200）\n化学达A*潜力线",story:"学员A在倍越国际系统学习A-Level AS阶段化学与物理课程。针对其UMS 177分（满分200）的AS Chemistry成绩，倍越教研组精准诊断薄弱模块，定制UMS提分方案：强化定量分析与实验设计训练，同步穿插真题限时模考与精细化批改；物理课程则侧重力学建模与公式推导逻辑梳理。全程配备双师服务——学科导师+学管师，定期反馈学习轨迹、调整节奏。",date:"",board:"",subjects:"化学,物理"},{id:17,type:"A-Level",tag:"A-Level",headline:"A-Level 双科 A 等级",score_short:"化学 A · 数学 A\n爱德思 成都考场",score_full:"爱德思考试局 成都考场\n化学 A等级 · 数学 A等级",story:"学员A在倍越国际系统学习A-Level化学与数学AS阶段课程，全程由爱德思认证教师授课，结合真题精讲、错题追踪及模考诊断。倍越为其定制"双科联动"复习方案，强化数学建模能力对化学计算的支撑。考前一个月启动冲刺集训，覆盖2023–2025年所有爱德思成都考场真题变式。2025年10月考季中，A同学两科均获A等级，成绩于2025年12月24日公布。",date:"2025年12月24日",board:"爱德思",subjects:"化学,数学"},{id:18,type:"A-Level",tag:"A-Level",headline:"A-Level 双科 A 等级",score_short:"数学 86/100（A）· 会计 91/100（A）\n两科均超全球均分 12 分",score_full:"CAIE剑桥考试局\n数学 86/100，A等级\n会计 91/100，A等级\n两科均超全球均分12分",story:"学员A在倍越国际系统学习A-Level（AS）课程，选择CAIE考试局数学与会计科目。倍越为其定制"双科联动"学习方案：数学侧重真题拆解与时间管理训练，会计强化案例分析与准则应用。授课教师均为拥有5年以上CAIE阅卷经验的资深讲师，每月提供学情诊断报告。最终A同学在2026年1月AS统考中，数学获86/100（A），会计获91/100（A），两科均超全球均分12分。",date:"",board:"剑桥",subjects:"数学,会计"},{id:19,type:"IGCSE",tag:"IGCSE",headline:"IGCSE 物理 A*（93分）",score_short:"物理 A*（93分）· A-Level 数学 A*\n就读：上海领科教育",score_full:"剑桥考试局 / 上海领科教育\nA-Level 数学 A* · 中文 A*\nIGCSE 物理 A*（93分）\n计算机 A（83分）· 化学 A（85分）· 生物 B",story:"倍越国际学员A同学，就读于上海领科教育，2025年6月IGCSE考季中，通过倍越定制化IGCSE全科冲刺课程（含物理、计算机、化学、生物及英语第二语言），在剑桥考试局评分体系下实现全面突破：物理斩获A*（93分），计算机、化学稳拿A（83/85分），生物提升至B（70分），英语口语达3级。倍越全程提供真题精讲、UMS分数策略指导及成绩单解读服务，助力其顺利衔接A-Level课程并锁定G5目标路径。",date:"2025年6月",board:"剑桥",subjects:"数学,中文,化学,计算机,生物,物理"},{id:20,type:"IGCSE",tag:"IGCSE",headline:"IGCSE 化学/物理 A*",score_short:"化学 A*（94分）· 物理 A*（93分）\nAS 数学 85分（A）",score_full:"IGCSE：化学 A*（94分）· 物理 A*（93分）\n生物 A（83分）· 英语第一语言 A（80分）\nAS Level：数学 85分（A等级）",story:"学员A（某国际学校高一学生）在倍越国际系统学习IGCSE及AS课程。针对其理科强、英语需强化的特点，倍越定制"IGCSE数理化冲刺+学术英语融合课"，由剑桥背景教师1对4小班授课；考前2个月启动模考精讲+真题拆解+个性化错题追踪服务。最终该生IGCSE化学、物理斩获A*（93/94分），生物、第一语言英语均达A（83/80分）；AS数学获a（85分）。",date:"",board:"剑桥",subjects:"化学,物理,生物,英语,数学"},{id:21,type:"IGCSE",tag:"IGCSE",headline:"IGCSE 经济 A*",score_short:"经济 A*（90分）· 数理化全 A\n锁定英国 G5 商科预录取",score_full:"经济 A*（90分）\n附加数学/物理/化学/中文 A（82-88分）\nESL 从 C 跃升至 B",story:"学员A在倍越国际系统学习IGCSE课程，冲刺经济、附加数学等核心科目。考前6个月，倍越为其定制"A*攻坚计划"：经济由剑桥阅卷官背景导师1对1精讲真题逻辑，附加数学强化高阶函数与微积分模块；ESL则通过外教口语陪练+学术写作闭环训练提升至B级。出分后，A同学经济获A*（90分），数理化全A，ESL从C跃升至B。",date:"",board:"剑桥",subjects:"生物,物理,化学,经济,数学"},{id:22,type:"IGCSE",tag:"IGCSE",headline:"IGCSE 9门全 A*",score_short:"9门全 A*，平均分 93.3\n附加数学 99分（最高）",score_full:"9门全A*，平均分93.3分\n附加数学 99分（最高分）\n文理全面：数理化/英语/英语文学/经济/全球视野/中文 全A*\n就读：上海包玉刚实验学校",story:"倍越国际学员Y（上海民办包玉刚实验学校）于2025年6月IGCSE考季斩获9门全A*的顶尖成绩：附加数学99分，其余科目均≥90分，平均分93.3。倍越为其定制"IGCSE全科冲刺计划"，由剑桥阅卷官背景教师执教数理化与英语文学，配备1v3小班精讲+个性化错题追踪系统；学术督导全程跟进学习节奏。Y同学语言能力达母语级，直接豁免雅思。该成绩成为其冲击英国G5、美国藤校的核心竞争力。",date:"2025年6月",board:"剑桥",subjects:"物理,化学,生物,数学,经济,英语"},{id:23,type:"A-Level",tag:"A-Level",headline:"A-Level P3 数学满分",score_short:"纯数学3（P3）A 等级（满分）\n较入学提升两个等级",score_full:"纯数学 3（P3）单元满分 A等级\n较入学时提升两个等级",story:"学员A在倍越国际系统学习A-Level数学，针对P3纯数学单元薄弱环节，倍越教研组为其定制"高频考点+真题精讲+错题闭环"三阶提升方案。授课教师（剑桥大学数学系背景）全程跟进，结合历年CIE考纲逐项突破微积分、复数与微分方程等难点；学管师每周跟踪模考数据，动态调整练习强度。2026年1月考试季，学员A顺利斩获P3单元A等级（满分），较入学时提升两个等级。",date:"2026年1月",board:"爱德思",subjects:"数学"},{id:24,type:"GRE",tag:"GRE",headline:"GRE 334分",score_short:"V164（96%）· Q170（满分）\n总分 334 / 340",score_full:"Verbal Reasoning：164/170（全球前96%）\nQuantitative Reasoning：170/170（满分）\n总分 334 / 340",story:"学员A于2026年3月25日参加GRE考试，4月2日收到倍越推送的Unofficial Scores提醒：Verbal 164（96%）、Quant 170（100%），总分334。作为倍越国际全程托管学员，其自2025年10月起接受定制化GRE培训——每日精读长难句+逻辑题型拆解+模考错题闭环复盘；写作由前ETS阅卷官1v1批改润色。",date:"",board:"",subjects:""},{id:25,type:"GRE",tag:"GRE",headline:"GRE 326分",score_short:"V156（72%）· Q170（满分）\n较首测提升 22 分",score_full:"Verbal Reasoning：156/170（约72%）\nQuantitative Reasoning：170/170（满分）\n总分 326 / 340，较首测提升22分",story:"学员A于2026年3月参加倍越GRE全科冲刺班，针对Verbal薄弱、Quant冲刺满分需求，倍越为其定制"词汇逻辑+长难句精析+数学真题模考"三阶方案。授课教师每日批改阅读与填空作业，精准定位逻辑断层；Quant模块全程1对1错题溯源。考前两周启动机经高频题滚动训练+全真模考4次，A同学在2026年3月28日考试中斩获总分326，较首测提升22分。",date:"",board:"",subjects:""},{id:26,type:"GRE",tag:"GRE",headline:"GRE 329分",score_short:"V159 · Q170（满分）\nVerbal 提升 +8 分",score_full:"Verbal Reasoning：159/170（+8分）\nQuantitative Reasoning：170/170（满分）",story:"学员A于2026年3月参加倍越GRE全科冲刺班，针对Verbal薄弱、Quant追求满分的需求，倍越为其定制"逻辑词根+长难句精析"语文提分方案，并安排Quant每日一练+错题溯源复盘。最终，A在2026年4月初出分：Verbal 159（+8分），Quant 170（满分）。",date:"",board:"",subjects:""},{id:27,type:"GRE",tag:"GRE",headline:"GRE 324分",score_short:"V154（60%）· Q170（94%）· AW 3.5",score_full:"Verbal Reasoning：154/170（全球60%）\nQuantitative Reasoning：170/170（94%）\nAnalytical Writing：3.5",story:"学员A在倍越国际系统备考GRE，经过12周一对一精准辅导（含Verbal高频题型突破、Quant满分策略训练、AW写作逻辑框架搭建），配合3次全真模考与逐题精讲，最终斩获Verbal 154（60%）、Quant 170（94%）、AW 3.5的高分成绩。",date:"",board:"",subjects:""},{id:28,type:"GRE",tag:"GRE",headline:"GRE 339分",score_short:"V169 · Q170 · AW 4.0\nVerbal 全球前 10%",score_full:"Verbal 169 + Quant 170 + AW 4.0\n总分 339 / 340\nVerbal 单科达全球前10%",story:"学员A于2024年9月加入倍越国际GRE全程培优计划，目标冲刺330+。倍越为其定制"诊断—精讲—模考—复盘"四阶方案，由资深GRE讲师一对一授课，重点突破逻辑阅读与定量难题；学管师全程跟进学习节奏，每周反馈进度并动态调整计划。2025年1月8日，A同学斩获169（Verbal）+170（Quant）+4.0（AW）高分，Verbal单科达全球前10%，成功匹配英美顶尖社科项目。",date:"2025年1月8日",board:"",subjects:""},{id:29,type:"GRE",tag:"GRE",headline:"GRE 339分",score_short:"V169 · Q170 · AW 3.5\n写作累计修改 12 稿",score_full:"Verbal 169 + Quant 170 + AW 3.5\n总分 339 / 340，写作累计修改12稿",story:"学员A于2025年3月加入倍越国际GRE全程班，目标冲刺330+。倍越为其定制"诊断—精讲—模考—复盘"四阶方案，由资深GRE讲师一对一分析薄弱项，重点突破逻辑阅读与数学难题；写作全程批改+范例精析，累计修改12稿。2025年5月26日出分：Verbal 169、Quant 170、AW 3.5，总分339，达预期目标。",date:"2025年5月26日",board:"",subjects:""},{id:30,type:"GRE",tag:"GRE",headline:"GRE 336分",score_short:"V166（+12分）· Q170 · AW 4.0",score_full:"Verbal 166 + Quant 170 + AW 4.0\n总分 336 / 340，Verbal大幅提升12分",story:"学员A于2024年2月加入倍越国际GRE全程班，目标冲刺330+。倍越为其定制"诊断—强化—模考—复盘"四阶方案，由资深GRE教师一对一精讲逻辑与数学难点，并配备专属学管全程督学、高频词打卡与作文批改服务。2024年4月23日，A同学斩获166（语文）+170（数学）+4.0（写作）高分，语文大幅提升12分。",date:"2024年4月23日",board:"",subjects:""},{id:31,type:"GRE",tag:"GRE",headline:"GRE 334分",score_short:"V165（+18分）· Q169 · AW 3.0",score_full:"Verbal 165 + Quant 169 + AW 3.0\n总分 334 / 340，Verbal提升18分",story:"学员A于2025年3月加入倍越国际GRE全程班，目标冲刺330+。倍越为其定制"诊断—精讲—模考—复盘"四阶方案，由资深GRE教师团队授课，重点突破逻辑阅读与数学难题，并配备1v1写作批改与口语反馈。2025年5月21日，学员A斩获165（Verbal）+169（Quant）+3.0（AW）高分，Verbal提升18分，成功达申研目标。",date:"2025年5月21日",board:"",subjects:""},{id:32,type:"GRE",tag:"GRE",headline:"GRE 334分",score_short:"V164 · Q170 · AW 3.5\n较首测提升 42 分",score_full:"Verbal 164 + Quant 170 + AW 3.5\n总分 334 / 340，较首测提升42分",story:"学员A于2024年2月加入倍越国际GRE全程班，目标冲刺330+。倍越为其定制"词汇分阶+数学错题精讲+写作逻辑链训练"方案，配备专属学管全程督学、每周模考分析及作文1对1批改。2024年4月20日，A同学斩获164（Verbal）+170（Quant）+3.5（AW），总分334，较首测提升42分。",date:"2024年4月20日",board:"",subjects:""},{id:33,type:"GRE",tag:"GRE",headline:"GRE 333分",score_short:"V163（+12分）· Q170 · AW 3.5",score_full:"Verbal 163 + Quant 170 + AW 3.5\n总分 333 / 340，Verbal提升12分",story:"学员A于2024年3月加入倍越国际GRE全程培优计划，目标冲刺Verbal 160+/Quant 165+。倍越为其定制"诊断—精讲—模考—复盘"四阶方案，由资深GRE讲师一对一梳理逻辑阅读底层方法，高频错题实时归档，每周个性化写作反馈。2024年5月31日，A同学斩获163（V）+170（Q）+3.5（AW）高分，Verbal单科提升12分。",date:"2024年5月31日",board:"",subjects:""},{id:34,type:"GRE",tag:"GRE",headline:"GRE 329分",score_short:"V159 · Q170 · AW 3.0",score_full:"Verbal 159 + Quant 170 + AW 3.0\n总分 329 / 340",story:"学员A于2024年9月加入倍越国际GRE全程班，目标冲刺325+。倍越为其定制"诊断-强化-模考"三阶方案，首周精准定位逻辑薄弱项；中段由资深GRE教师一对一精讲数学高频陷阱与阅读长难句拆解技巧；后期匹配全真机考环境进行8次模考，并逐题复盘。学员于首考斩获159Q+170V+3.0AW，后续重考提升至162Q+170V+3.5AW，总分332。",date:"2025年5月15日",board:"",subjects:""},{id:35,type:"GRE",tag:"GRE",headline:"GRE 328分",score_short:"V158 · Q170 · AW 3.5",score_full:"Verbal 158 + Quant 170 + AW 3.5\n总分 328 / 340",story:"学员A于2024年3月加入倍越国际GRE全程班，目标冲刺325+及写作3.5。倍越为其定制"词汇分层+数学错题精讲+写作逻辑链训练"方案，配备专属学管全程督学，每周模考分析、作文一对一批改。针对其逻辑推理薄弱环节，教师专项拆解Argument结构，并提供10套高频题型精练。2024年6月6日出分：Verbal 158、Quant 170、AW 3.5，总分328，达成目标。",date:"2024年6月6日",board:"",subjects:""},{id:36,type:"GRE",tag:"GRE",headline:"GRE 328分",score_short:"V158 · Q170 · AW 3.0\n后续重考 AW 提升至 4.0",score_full:"Verbal 158 + Quant 170 + AW 3.0\n总分 328 / 340\n后续重考将AW提升至4.0",story:"学员A于2023年6月加入倍越国际GRE全程班，目标冲刺325+及写作3.5。倍越为其定制"词汇分层+数学错题溯源+写作逻辑链训练"方案，配备专属学管全程督学、模考精批与心理调适支持。9月5日出分：Verbal 158、Quant 170、AW 3.0，总分328。倍越后续免费提供1v1写作强化课，助力A同学在10月重考中将AW提升至4.0。",date:"2023年9月5日",board:"",subjects:""},{id:37,type:"GRE",tag:"GRE",headline:"GRE 326分",score_short:"V156（+12分）· Q170 · AW 4.0",score_full:"Verbal 156 + Quant 170 + AW 4.0\n总分 326 / 340，Verbal提分12分",story:"学员A于2024年7月加入倍越国际GRE全程班，目标冲刺325+及4.0写作。倍越为其定制"诊断—强化—模考"三阶方案：首周精准定位逻辑弱项与词汇盲区；中段由资深GRE讲师一对一精讲Quant高频陷阱题与Argument结构拆解；后期安排全真机考模考+逐题语音反馈。2024年10月8日，A同学斩获156（Verbal）+170（Quant）+4.0（AW），Verbal提分12分，成功达申研目标分数。",date:"2024年10月8日",board:"",subjects:""},{id:38,type:"GRE",tag:"GRE",headline:"GRE 311分",score_short:"Q170（满分）· AW 3.5（+1.0分）",score_full:"Verbal 141 + Quant 170（满分）+ AW 3.5\n总分 311 / 340，写作较入学提升1.0分",story:"学员A于2023年7月加入倍越国际GRE全程班，目标冲刺320+及写作3.5+。倍越为其定制"词汇分阶+数学错题精讲+写作逻辑框架"三轨并进方案，配备专属学管全程督学、4次全真模考及逐题精批。9月17日出分：Verbal 141、Quant 170、AW 3.5——数学满分，写作较入学提升1.0分。",date:"2023年9月17日",board:"",subjects:""},{id:39,type:"GRE",tag:"GRE",headline:"GRE 330分",score_short:"V161 · Q169 · AW 3.5\n较入学提升 22 分",score_full:"Verbal 161 + Quant 169 + AW 3.5\n总分 330 / 340，较入学提升22分",story:"学员A于2025年3月加入倍越国际GRE全程班，目标冲刺330+。倍越为其定制"诊断-强化-模考"三阶方案，配备专属学管全程督学，每日单词打卡、错题复盘、模考分析报告即时反馈。最终学员A于2025年5月19日斩获161（Verbal）+169（Quant）+3.5（AW），总分330，较入学提升22分。",date:"2025年5月19日",board:"",subjects:""},{id:40,type:"GRE",tag:"GRE",headline:"GRE 330分",score_short:"V162 · Q168 · AW 3.5\n较首测提升 22 分",score_full:"Verbal 162 + Quant 168 + AW 3.5\n总分 330 / 340，较首测提升22分",story:"学员A于2025年1月加入倍越国际GRE全程班，目标冲刺330+。倍越为其定制"诊断-强化-模考"三阶方案：首周精准定位逻辑薄弱项；中段由GRE阅读名师带教长难句拆解与题型秒杀技巧；后期安排全真机考模考+逐题精讲。2025年3月24日出分：Verbal 162，Quant 168，AW 3.5，总分330——较首测提升22分。",date:"2025年3月24日",board:"",subjects:""},{id:41,type:"GRE",tag:"GRE",headline:"GRE 322分",score_short:"V161 · Q161 · AW 3.0",score_full:"Verbal 161 + Quant 161 + AW 3.0\n总分 322 / 340",story:"学员A于2024年7月加入倍越国际GRE全程班，目标冲刺325+。倍越为其定制"词汇分层+数学错题溯源+写作逻辑框架"三阶方案，配备专属学管全程督学、模考精批与心理调适支持。9月21日正式出分161+161+3.0，达成目标。倍越坚持"精准诊断—动态调整—闭环反馈"，助力学员高效提分。",date:"2024年9月21日",board:"",subjects:""},{id:42,type:"AP",tag:"AP",headline:"AP 化学 5分",score_short:"AP Chemistry 5分（满分）\n免修大学 General Chemistry I/II",score_full:"AP 化学 5分（满分）\n可免修大学入门化学（General Chemistry I/II）\n助力申请：化学/工程/生物/医学预科等STEM专业",story:"学员A（化学方向）在倍越系统学习AP化学课程，由资深AP理科导师全程授课，结合真题精讲+实验视频解析+1v1错题攻坚，历时6个月高效备考。2025年5月出分后，A同学斩获AP化学5分。倍越同步为其规划大学化学课程免修路径，并衔接暑期有机化学先修班与科研项目推荐，助力其提前锁定UCB化学系录取。",date:"",board:"",subjects:"化学"},{id:43,type:"AP",tag:"AP",headline:"AP 宏观经济学 5分",score_short:"AP Macroeconomics 5分（满分）\n免修大学 Econ 101",score_full:"AP 宏观经济学 5分（满分）\n可直接跳过大学入门宏观（Econ 101/100a）\n选修中级宏观、计量经济等高阶课程",story:"学员A在倍越国际系统学习AP宏观经济学课程，由资深AP经济学教师全程授课，结合真题精讲、模型图解与高频错题复盘，强化IS-LM、AD-AS及菲利普斯曲线等核心模块。学员于2026年7月查得5分成绩，成功跳过大学Econ 101，直入中级宏观课程；其家长特别致谢倍越"精准提分+升学衔接"双轨服务。",date:"",board:"",subjects:"宏观经济"},{id:44,type:"AP",tag:"AP",headline:"AP 物理1 5分",score_short:"AP Physics 1 5分（满分）\n满足大学物理通识学分",score_full:"AP 物理1 5分（满分）\n可满足大学物理通识学分，部分院校可跳过基础物理入门课程",story:"学员A（某国际学校高二学生）在倍越国际系统学习AP物理1课程，由倍越资深AP物理教师全程授课，结合真题精讲、实验视频解析与1对1错题诊断，3个月冲刺后于2026年7月收到5分成绩。出分后，倍越升学顾问立即启动文书素材挖掘，将AP物理项目实验设计、建模过程转化为主文书核心故事，并协助完成MIT Early Action前置材料准备。",date:"",board:"",subjects:"物理"},{id:45,type:"AP",tag:"AP",headline:"AP 统计学 5分",score_short:"AP Statistics 5分（满分）\n免修大学入门统计课程",score_full:"AP 统计学 5分（满分）\n可跳过大学入门统计，部分院校可直接选修高阶统计、计量经济等课程",story:"学员A（经济方向）在倍越国际系统学习AP统计学，由资深AP导师全程授课，结合真题精讲+错题追踪+模考冲刺，3个月高效备考。2026年4月9日AP统考出分后，A同学喜获5分！倍越全程提供成绩解读、选课指导与文书素材提炼服务，真正实现"一科多用、精准赋能"。",date:"",board:"",subjects:"统计学"},{id:46,type:"AP",tag:"AP",headline:"AP 微观经济学 5分",score_short:"AP Microeconomics 5分（满分）\n豁免 NYU Stern、LSE 先修要求",score_full:"AP 微观经济学 5分（满分）\n可直接跳过大学入门微观经济学课程\n满足 NYU Stern、LSE Economics 先修课豁免要求",story:"学员A于2026年3月参加倍越国际AP微观经济学冲刺集训，全程由藤校经济学博士授课，聚焦真题建模、图表分析与FRQ高分逻辑训练。2026年4月9日AP官方放分，A斩获5分——成功满足目标校（如NYU Stern、LSE Economics）的先修课豁免要求。",date:"",board:"",subjects:"微观经济"},{id:47,type:"AP",tag:"AP",headline:"AP 顶石文凭",score_short:"AP Seminar 5分 · AP Research 4分\n顺利获得 AP Capstone Diploma",score_full:"AP Seminar 5分 · AP Research 4分\n微观经济/心理/统计/英语语言 均≥4分\n顺利获得 AP Capstone Diploma",story:"学员A于2026年7月收到AP成绩，成功斩获AP Seminar 5分、AP Research 4分，并在微观经济、心理学、统计学、英语语言共四门AP中均获4分以上，顺利获得AP顶石文凭。作为倍越国际全程培养的学员，其从高一即加入倍越AP顶石项目：接受学术写作与研究方法系统训练，完成两轮模拟论文答辩；倍越导师一对一指导选题、文献综述与数据可视化。出分后，倍越升学顾问立即为其定制藤校文书策略，助力其早申阶段斩获宾大沃顿商学院录取。",date:"",board:"",subjects:"专题研讨"},{id:48,type:"AP",tag:"AP",headline:"AP 微积分BC 5分",score_short:"AP Calculus BC 5分（满分）\n免修大学微积分 I、II 两门课",score_full:"AP 微积分 BC 5分（满分）\n可跳过大学微积分I、II，直接修读多元微积分、线性代数等高阶课程",story:"学员A（高二）在倍越系统学习AP微积分BC课程，由资深AP数学教师全程授课，结合真题精讲+错题追踪+模考冲刺三阶段教学。2026年4月9日AP考试出分后，A同学斩获5分。倍越为其定制后续规划：凭此成绩成功免修大学前两学期微积分课程，并同步启动SAT数学强化与英美TOP30理工科申请文书辅导。",date:"",board:"",subjects:"微积分"},{id:49,type:"GRE",tag:"GRE",headline:"GRE 328分",score_short:"V158 · Q170（满分）\n从 148+155 到 158+170",score_full:"Verbal 158 + Quant 170（满分）\n入学模考：Verbal 148 / Quant 155",story:"学员A于2026年3月中旬在倍越国际完成GRE全程培优课程，入学模考仅148+155。倍越为其定制"逻辑强化+数学满分冲刺"双轨方案，由资深GRE讲师一对一精讲高频难题，并配备专属学管师每日督学、错题闭环追踪。最终A同学于2026年3月28日出分，斩获158（Verbal）+170（Quant），Quant满分突破。",date:"",board:"",subjects:""},{id:50,type:"SAT",tag:"SAT",headline:"SAT 1600分",score_short:"总分 1600 / 1600（满分！）\n较首测提升 240 分",score_full:"800 + 800 = 1600（满分）\n较首测提升240分",story:"学员A于2024年7月加入倍越国际，目标冲刺SAT满分。倍越为其定制12周高强度标化提升方案：每周4次小班精讲+2次1v1错题攻坚，全程由前CB官方阅卷人带队；学管师每日跟踪模考进度，动态调整词汇与语法薄弱模块。2024年10月5日，A同学斩获SAT双800、总分1600的满分成绩，较首测提升240分。",date:"2024年10月5日",board:"",subjects:""},{id:51,type:"SAT",tag:"SAT",headline:"SAT 1570分",score_short:"总分 1570 / 1600\n较首考提升 190 分，锁定康奈尔 ED",score_full:"数学 800（满分）+ 阅读与写作 770\n总分 1570 / 1600，较首考提升190分\n助力锁定康奈尔大学Early Decision录取",story:"学员A于2024年6月加入倍越国际，目标冲刺TOP20美本，SAT基础分1380。倍越为其定制"SAT高分突破计划"：由前CB官方阅卷人领衔的数学/阅读双科精讲+错题溯源训练，配合每周模考分析与心理调适辅导。2024年8月24日出分，A同学斩获1570分（数学800+阅读770），较首考提升190分。倍越全程提供成绩单解读、选校匹配及后续申请文书衔接服务，助力其锁定康奈尔大学Early Decision录取资格。",date:"2024年8月24日",board:"",subjects:""},{id:52,type:"SAT",tag:"SAT",headline:"SAT 1600分",score_short:"总分 1600 / 1600（满分！）",score_full:"800 + 800 = 1600（满分）",story:"学员A于2025年3月加入倍越国际SAT全科冲刺班，目标冲刺1600分。倍越为其定制"诊断—精讲—模考—复盘"四阶方案，由资深SAT教师团队全程授课，重点突破阅读逻辑链与数学建模难点；学管师每周跟踪进度，动态调整练习强度；考前一个月启动全真机考模考+逐题语音精讲服务。2025年6月7日出分，A同学斩获800+800=1600分满分。",date:"2025年6月7日",board:"",subjects:""},{id:53,type:"SAT",tag:"SAT",headline:"SAT 1550分",score_short:"总分 1550 / 1600\n较首测提升 210 分",score_full:"阅读与写作 750 + 数学 800\n总分 1550 / 1600，较首测提升210分",story:"学员A于2025年6月加入倍越国际SAT全程培优计划，目标冲刺1550+。倍越为其定制"诊断—精讲—模考—复盘"四阶方案，由资深SAT阅读/语法双科教师与数学满分导师联合授课；每周2次1对4小班+1次1对1薄弱项攻坚，配合智能题库实时追踪错因。2025年9月13日出分，A同学斩获750（阅读）+800（数学）=1550高分，较首测提升210分。",date:"2025年9月13日",board:"",subjects:""},{id:54,type:"雅思",tag:"雅思",headline:"雅思 7.0分",score_short:"总分 7.0 · 写作 7.5（高分段）\nL6.5 R7.0 W7.5 S6.0",score_full:"总成绩 7.0\n听力 6.5 / 阅读 7.0 / 写作 7.5 / 口语 6.0",story:"学员A于2026年2月加入倍越国际雅思冲刺班，目标总分7.0。倍越为其定制"听说读写四维提分方案"：写作模块由前雅思考官主讲，针对性强化逻辑链与学术词汇；口语实行1v3小班模考+即时反馈；听力/阅读则通过真题精析+错题归因系统提升解题效率。经过5周高强度训练，学员A于2026年3月28日出分：总分7.0（L6.5/R7.0/W7.5/S6.0），写作跃升至7.5。",date:"2026年3月28日",board:"",subjects:""},{id:55,type:"雅思",tag:"雅思",headline:"雅思 8.0分",score_short:"总分 8.0 · 阅读 9.0（近满分！）\nL8.5 R9.0 W7.5 S7.5",score_full:"总分 8.0\n听力 8.5 / 阅读 9.0 / 写作 7.5 / 口语 7.5\n较首测提升1.5分",story:"学员A于2026年3月参加倍越雅思全科冲刺班，目标总分8分。倍越为其定制"听说读写四维提分方案"，配备资深雅思教师1对1精批作文+口语模考，并利用自研AI语音诊断系统实时纠音。经过8周高强度闭环训练，学员在2026年4月初考获雅思总分8分（听力8.5、阅读9、写作7.5、口语7.5），较首测提升1.5分。",date:"",board:"",subjects:""},{id:56,type:"雅思",tag:"雅思",headline:"雅思 7.5分",score_short:"总分 7.5 · 听力 8.5\nL8.5 R8.0 W6.5 S6.5",score_full:"总分 7.5\n听力 8.5 / 阅读 8.0 / 写作 6.5 / 口语 6.5",story:"学员A于2026年3月参加倍越雅思全科冲刺班，目标总分7.5。倍越为其定制"听说读写四维提分方案"：口语采用1v4小班模考+外教即时反馈，写作实行"批改-重写-精修"三阶训练。经过8周高强度闭环训练，学员A在2026年4月初出分，斩获雅思总分7.5（听力8.5、阅读8.0、写作6.5、口语6.5），成功达标英本申请语言要求。",date:"",board:"",subjects:""},{id:57,type:"雅思",tag:"雅思",headline:"雅思 7.0分",score_short:"总分 7.0 · 听力 8.0 · 阅读 7.5",score_full:"总分 7.0\n听力 8.0 / 阅读 7.5 / 写作 6.5 / 口语 6.5",story:"学员A于2026年3月参加雅思考试，总分7分（听力8、阅读7.5、写作6.5、口语6.5）。在倍越国际为期12周的雅思全科冲刺班中，A同学接受个性化学习诊断，定制弱项提升方案；写作与口语由前雅思考官1对1模考精批，阅读采用"同义替换+题型拆解"训练法，听力强化场景词汇与速记技巧。",date:"",board:"",subjects:""},{id:58,type:"雅思",tag:"雅思",headline:"雅思 7.0分",score_short:"总分 7.0 · 听力 8.0 · 阅读 7.5",score_full:"总分 7.0\n听力 8.0 / 阅读 7.5 / 写作 6.5 / 口语 6.5",story:"学员A于2026年3月参加雅思考试，总分7分（听力8、阅读7.5、写作6.5、口语6.5）。在倍越国际为期10周的雅思冲刺班中，他全程参与小班精讲+1对1写作/口语模考反馈，倍越学管师为其定制词汇打卡与错题复盘计划，并每周跟进学习节奏。",date:"",board:"",subjects:""}];
+
+let activeTag='全部';
+function renderCards(tag){
+  const grid=document.getElementById('card-grid');
+  const filtered=tag==='全部'?CASES:CASES.filter(c=>c.tag===tag);
+  document.getElementById('shown-count').textContent=filtered.length;
+  if(filtered.length===0){grid.innerHTML=`<div class="empty-state"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><h3>暂无相关案例</h3><p>请尝试其他分类</p></div>`;return;}
+  grid.innerHTML=filtered.map(c=>`
+    <article class="card" onclick="openModal(${c.id})" tabindex="0" role="button" aria-label="${c.headline}">
+      <div class="card-top">
+        <div class="card-tag-row">
+          <span class="tag tag-${c.tag}">${c.tag}</span>
+          ${c.date?`<span class="card-date">${c.date}</span>`:''}
+        </div>
+        <div class="card-headline">${c.headline}</div>
+        <div class="card-score">${c.score_short}</div>
+        <div class="card-story">${c.story}</div>
+      </div>
+      <div class="card-img-placeholder">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        成绩单图片
+      </div>
+      <div class="card-bottom">
+        <span class="card-board">${c.board?'📋 '+c.board:c.subjects?'📚 '+c.subjects.replace(/,/g,' · '):''}</span>
+        <span class="read-more">查看详情 <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+    </article>`).join('');
+}
+function openModal(id){
+  const c=CASES.find(x=>x.id===id);if(!c)return;
+  document.getElementById('modal-tag-row').innerHTML=`<span class="tag tag-${c.tag}">${c.tag}</span>`;
+  document.getElementById('modal-headline').textContent=c.headline;
+  document.getElementById('modal-score').textContent=c.score_full;
+  document.getElementById('modal-story').textContent=c.story;
+  const meta=[];
+  if(c.date)meta.push(`<span class="meta-chip">📅 ${c.date}</span>`);
+  if(c.board)meta.push(`<span class="meta-chip">🏫 ${c.board}</span>`);
+  if(c.subjects)c.subjects.split(',').forEach(s=>meta.push(`<span class="meta-chip">📚 ${s.trim()}</span>`));
+  document.getElementById('modal-meta').innerHTML=meta.join('');
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');document.body.style.overflow='';}
+document.querySelectorAll('.filter-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');activeTag=btn.dataset.tag;renderCards(activeTag);
+    document.getElementById('card-grid').scrollIntoView({behavior:'smooth',block:'start'});
+  });
+});
+document.getElementById('modal-close').addEventListener('click',closeModal);
+document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target===document.getElementById('modal-overlay'))closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+renderCards('全部');
+</script>
+</body>
+</html>
