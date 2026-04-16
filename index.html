@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学员成绩展示 · XLeap Global 海马倍越</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0d1117;--ink-soft:#374151;--ink-muted:#6b7280;--gold:#c9974a;--gold-light:#f5e6cd;--gold-pale:#fdf8f1;--accent:#1a3a5c;--accent-light:#e8eef5;--border:#e5e7eb;--radius:16px;--shadow:0 2px 20px rgba(0,0,0,.06);--shadow-hover:0 8px 40px rgba(0,0,0,.12)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans','Noto Serif SC',sans-serif;background:#f9f7f4;color:var(--ink);min-height:100vh}
+.hero{background:var(--accent);color:#fff;position:relative;overflow:hidden;padding:72px 24px 64px;text-align:center}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(201,151,74,.25) 0%,transparent 70%)}
+.hero-badge{display:inline-block;font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);border:1px solid rgba(201,151,74,.4);padding:6px 16px;border-radius:100px;margin-bottom:24px;position:relative}
+.hero h1{font-family:'Noto Serif SC',serif;font-size:clamp(28px,5vw,52px);font-weight:700;line-height:1.2;margin-bottom:16px;position:relative}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero p{font-size:16px;color:rgba(255,255,255,.72);max-width:520px;margin:0 auto 40px;line-height:1.7;position:relative}
+.stats-row{display:flex;justify-content:center;gap:48px;flex-wrap:wrap;position:relative}
+.stat{text-align:center}
+.stat-num{font-size:36px;font-weight:600;color:var(--gold);display:block;line-height:1}
+.stat-label{font-size:12px;color:rgba(255,255,255,.55);margin-top:6px}
+.filter-section{position:sticky;top:0;z-index:100;background:rgba(249,247,244,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 24px}
+.filter-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.filter-label{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--ink-muted);margin-right:4px;white-space:nowrap}
+.filter-btn{padding:7px 16px;border-radius:100px;border:1.5px solid var(--border);background:#fff;color:var(--ink-soft);font-size:13px;font-weight:500;cursor:pointer;transition:all .18s;white-space:nowrap}
+.filter-btn:hover{border-color:var(--gold);color:var(--gold)}
+.filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.result-bar{max-width:1200px;margin:0 auto;padding:18px 24px 4px;font-size:13px;color:var(--ink-muted)}
+.result-bar strong{color:var(--ink)}
+.grid-section{max-width:1200px;margin:0 auto;padding:8px 24px 80px;display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:20px}
+.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;display:flex;flex-direction:column;border:1px solid var(--border)}
+.card:hover{transform:translateY(-4px);box-shadow:var(--shadow-hover)}
+.card-top{padding:20px 20px 14px;flex:1}
+.card-tag-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.tag{font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:4px 10px;border-radius:6px}
+.tag-TOEFL{background:#dbeafe;color:#1d4ed8}.tag-雅思{background:#dcfce7;color:#166534}
+.tag-SAT{background:#fce7f3;color:#9d174d}.tag-GRE{background:#ede9fe;color:#5b21b6}
+.tag-IGCSE{background:#ffedd5;color:#9a3412}.tag-A-Level{background:#cffafe;color:#155e75}
+.tag-AP{background:#f0fdf4;color:#14532d}.tag-竞赛{background:#fef9c3;color:#854d0e}
+.tag-SSAT{background:#f5f3ff;color:#4c1d95}.tag-DET{background:#fdf4ff;color:#701a75}
+.tag-录取{background:#fff7ed;color:#9a3412}
+.card-date{font-size:11px;color:var(--ink-muted);margin-left:auto}
+.card-headline{font-family:'Noto Serif SC',serif;font-size:21px;font-weight:700;color:var(--ink);margin-bottom:8px;line-height:1.3}
+.card-score{font-size:13px;color:var(--ink-soft);line-height:1.7;margin-bottom:10px;white-space:pre-line}
+.card-story{font-size:13px;color:var(--ink-muted);line-height:1.7;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.card-img-wrap{margin:0 20px 14px;border-radius:10px;overflow:hidden;height:160px;background:var(--gold-pale);position:relative}
+.card-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+.card:hover .card-img-wrap img{transform:scale(1.03)}
+.card-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--gold);border:1.5px dashed var(--gold);border-radius:10px;font-size:12px}
+.card-bottom{padding:11px 20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-board{font-size:11px;color:var(--ink-muted);font-weight:500}
+.read-more{font-size:12px;font-weight:600;color:var(--accent);display:flex;align-items:center;gap:4px}
+.read-more svg{transition:transform .2s}
+.card:hover .read-more svg{transform:translateX(3px)}
+.modal-overlay{position:fixed;inset:0;background:rgba(13,17,23,.75);z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:#fff;border-radius:20px;max-width:640px;width:100%;max-height:90vh;overflow-y:auto;transform:translateY(20px) scale(.97);transition:transform .25s}
+.modal-overlay.open .modal{transform:none}
+.modal-header{padding:24px 28px 18px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff;border-radius:20px 20px 0 0;display:flex;align-items:flex-start;gap:16px}
+.modal-close{margin-left:auto;width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.modal-close:hover{background:var(--border)}
+.modal-body{padding:22px 28px 32px}
+.modal-headline{font-family:'Noto Serif SC',serif;font-size:24px;font-weight:700;line-height:1.3;margin-top:8px}
+.modal-img-wrap{border-radius:12px;overflow:hidden;margin-bottom:20px;background:var(--gold-pale);cursor:zoom-in}
+.modal-img-wrap img{width:100%;display:block}
+.modal-img-placeholder{border:2px dashed var(--gold);border-radius:12px;padding:32px;text-align:center;margin-bottom:20px;color:var(--gold)}
+.modal-img-placeholder p{font-size:13px;margin-top:8px;color:var(--ink-muted)}
+.modal-score-box{background:var(--gold-pale);border:1px solid var(--gold-light);border-radius:12px;padding:16px 20px;margin-bottom:20px;font-size:14px;color:var(--ink-soft);line-height:1.9;white-space:pre-wrap}
+.section-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-muted);margin-bottom:10px}
+.modal-story{font-size:15px;line-height:1.9;color:var(--ink-soft)}
+.modal-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;padding-top:20px;border-top:1px solid var(--border)}
+.meta-chip{font-size:12px;background:var(--accent-light);color:var(--accent);padding:5px 12px;border-radius:100px;font-weight:500}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s;cursor:zoom-out}
+.lightbox.open{opacity:1;pointer-events:all}
+.lightbox img{max-width:100%;max-height:90vh;border-radius:8px;object-fit:contain}
+.loading{grid-column:1/-1;text-align:center;padding:80px 24px;color:var(--ink-muted);font-size:15px}
+.loading-spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+footer{text-align:center;padding:40px 24px;font-size:13px;color:var(--ink-muted);border-top:1px solid var(--border);background:#fff}
+footer strong{color:var(--accent)}
+.empty-state{grid-column:1/-1;text-align:center;padding:80px 24px;color:var(--ink-muted)}
+@media(max-width:600px){.stats-row{gap:28px}.stat-num{font-size:28px}.grid-section{grid-template-columns:1fr;padding:8px 16px 60px}.modal-body,.modal-header{padding-left:18px;padding-right:18px}.hero{padding:56px 20px 48px}}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-badge">XLeap Global &middot; 海马倍越国际事业部</div>
+  <h1>真实学员 &middot; <em>真实成绩</em></h1>
+  <p>每一份成绩单都是学员与倍越共同努力的见证。以可溯源的数据，为您的升学信心护航。</p>
+  <div class="stats-row">
+    <div class="stat"><span class="stat-num" id="total-num">—</span><div class="stat-label">真实案例</div></div>
+    <div class="stat"><span class="stat-num">11</span><div class="stat-label">考试类型</div></div>
+    <div class="stat"><span class="stat-num">95%</span><div class="stat-label">达成目标分</div></div>
+    <div class="stat"><span class="stat-num">G5</span><div class="stat-label">顶尖名校录取</div></div>
+  </div>
+</section>
+
+<div class="filter-section">
+  <div class="filter-inner">
+    <span class="filter-label">筛选</span>
+    <button class="filter-btn active" data-tag="全部">全部</button>
+    <button class="filter-btn" data-tag="GRE">GRE</button>
+    <button class="filter-btn" data-tag="SAT">SAT</button>
+    <button class="filter-btn" data-tag="TOEFL">托福</button>
+    <button class="filter-btn" data-tag="雅思">雅思</button>
+    <button class="filter-btn" data-tag="AP">AP</button>
+    <button class="filter-btn" data-tag="IGCSE">IGCSE</button>
+    <button class="filter-btn" data-tag="A-Level">A-Level</button>
+    <button class="filter-btn" data-tag="竞赛">竞赛</button>
+    <button class="filter-btn" data-tag="SSAT">SSAT</button>
+    <button class="filter-btn" data-tag="DET">DET</button>
+    <button class="filter-btn" data-tag="录取">录取</button>
+  </div>
+</div>
+
+<div class="result-bar">显示 <strong id="shown-count">—</strong> 条案例</div>
+<div class="grid-section" id="card-grid">
+  <div class="loading"><div class="loading-spinner"></div>数据加载中...</div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div style="flex:1">
+        <div id="modal-tag-row"></div>
+        <div class="modal-headline" id="modal-headline"></div>
+      </div>
+      <button class="modal-close" id="modal-close">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="#374151" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div id="modal-img-area"></div>
+      <div class="section-label">成绩详情</div>
+      <div class="modal-score-box" id="modal-score"></div>
+      <div class="section-label">学员故事</div>
+      <div class="modal-story" id="modal-story"></div>
+      <div class="modal-meta" id="modal-meta"></div>
+    </div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox">
+  <img id="lightbox-img" src="" alt="成绩单">
+</div>
+
+<footer>
+  <strong>XLeap Global &middot; 海马倍越国际事业部</strong><br>
+  <span style="margin-top:6px;display:block">专注 A-Level / AP / IB / SAT / GRE / 雅思 / 托福 &middot; 一站式国际升学服务</span>
+</footer>
+
+<script>
+var SUPABASE_URL = "https://jegixmworjoyiphehuyz.supabase.co";
+var SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImplZ2l4bXdvcmpveWlwaGVodXl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxOTE3NTEsImV4cCI6MjA5MTc2Nzc1MX0.1_ek4OVcuSpDoRurhZvIuwfdHkLJn_ebV75Wzfxk5IY";
+var BUCKET = "score-images";
+var ALL_CASES = [];
+var activeTag = "全部";
+
+// 从 Supabase 读取所有案例
+function loadCases() {
+  var url = SUPABASE_URL + "/rest/v1/cases?select=*&order=id.asc";
+  fetch(url, {
+    headers: {
+      "apikey": SUPABASE_KEY,
+      "Authorization": "Bearer " + SUPABASE_KEY
+    }
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(data) {
+    if (!Array.isArray(data) || data.length === 0) {
+      document.getElementById("card-grid").innerHTML = '<div class="empty-state"><p>暂无数据，请检查数据库配置</p></div>';
+      return;
+    }
+    ALL_CASES = data;
+    document.getElementById("total-num").textContent = data.length;
+    renderCards("全部");
+  })
+  .catch(function(err) {
+    document.getElementById("card-grid").innerHTML = '<div class="empty-state"><p>数据加载失败，请刷新重试</p></div>';
+    console.error(err);
+  });
+}
+
+function getImgUrl(id, ext) {
+  return SUPABASE_URL + "/storage/v1/object/public/" + BUCKET + "/case-" + id + "." + ext;
+}
+
+function loadCardImg(id, imgEl, phEl) {
+  var jpg = getImgUrl(id, "jpg");
+  var png = getImgUrl(id, "png");
+  var i = new Image();
+  i.onload = function() { imgEl.src = jpg; imgEl.style.display = "block"; phEl.style.display = "none"; };
+  i.onerror = function() {
+    var i2 = new Image();
+    i2.onload = function() { imgEl.src = png; imgEl.style.display = "block"; phEl.style.display = "none"; };
+    i2.onerror = function() { imgEl.style.display = "none"; phEl.style.display = "flex"; };
+    i2.src = png;
+  };
+  i.src = jpg;
+}
+
+function renderCards(tag) {
+  activeTag = tag;
+  var filtered = tag === "全部" ? ALL_CASES : ALL_CASES.filter(function(c){ return c.tag === tag; });
+  document.getElementById("shown-count").textContent = filtered.length;
+  if (filtered.length === 0) {
+    document.getElementById("card-grid").innerHTML = '<div class="empty-state"><p>暂无相关案例</p></div>';
+    return;
+  }
+  var html = "";
+  filtered.forEach(function(c) {
+    var meta = c.board ? ("📋 " + c.board) : (c.subjects ? ("📚 " + c.subjects.replace(/,/g, " · ")) : "");
+    html += '<article class="card" data-id="' + c.id + '" tabindex="0">' +
+      '<div class="card-top">' +
+        '<div class="card-tag-row">' +
+          '<span class="tag tag-' + c.tag + '">' + c.tag + '</span>' +
+          (c.date ? '<span class="card-date">' + c.date + '</span>' : '') +
+        '</div>' +
+        '<div class="card-headline">' + (c.headline || '') + '</div>' +
+        '<div class="card-score">' + (c.score_short || '') + '</div>' +
+        '<div class="card-story">' + (c.story || '') + '</div>' +
+      '</div>' +
+      '<div class="card-img-wrap" id="img-wrap-' + c.id + '">' +
+        '<img id="card-img-' + c.id + '" src="" alt="成绩单" style="display:none">' +
+        '<div class="card-img-placeholder" id="card-ph-' + c.id + '">' +
+          '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>' +
+          '<span>成绩单图片</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="card-bottom">' +
+        '<span class="card-board">' + meta + '</span>' +
+        '<span class="read-more">查看详情 <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' +
+      '</div>' +
+    '</article>';
+  });
+  document.getElementById("card-grid").innerHTML = html;
+  filtered.forEach(function(c) {
+    var card = document.querySelector('[data-id="' + c.id + '"]');
+    if (card) {
+      card.addEventListener("click", function(){ openModal(c.id); });
+      loadCardImg(c.id, document.getElementById("card-img-" + c.id), document.getElementById("card-ph-" + c.id));
+    }
+  });
+}
+
+function openModal(id) {
+  var c = ALL_CASES.filter(function(x){ return x.id === id; })[0];
+  if (!c) return;
+  document.getElementById("modal-tag-row").innerHTML = '<span class="tag tag-' + c.tag + '">' + c.tag + '</span>';
+  document.getElementById("modal-headline").textContent = c.headline || '';
+  document.getElementById("modal-score").textContent = c.score_full || '';
+  document.getElementById("modal-story").textContent = c.story || '';
+  var imgArea = document.getElementById("modal-img-area");
+  imgArea.innerHTML = '<div class="modal-img-placeholder"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><p>加载中...</p></div>';
+  function tryLoad(url, fallback) {
+    var img = new Image();
+    img.onload = function() {
+      imgArea.innerHTML = '<div class="modal-img-wrap" id="modal-img-wrap"><img src="' + url + '" alt="成绩单"></div>';
+      document.getElementById("modal-img-wrap").addEventListener("click", function(){ openLightbox(url); });
+    };
+    img.onerror = function() {
+      if (fallback) { tryLoad(fallback, null); }
+      else { imgArea.innerHTML = '<div class="modal-img-placeholder"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><p>暂无成绩单图片</p></div>'; }
+    };
+    img.src = url;
+  }
+  tryLoad(getImgUrl(id, "jpg"), getImgUrl(id, "png"));
+  var meta = [];
+  if (c.date) meta.push('<span class="meta-chip">📅 ' + c.date + '</span>');
+  if (c.board) meta.push('<span class="meta-chip">🏫 ' + c.board + '</span>');
+  if (c.subjects) { c.subjects.split(",").forEach(function(s){ meta.push('<span class="meta-chip">📚 ' + s.trim() + '</span>'); }); }
+  document.getElementById("modal-meta").innerHTML = meta.join("");
+  document.getElementById("modal-overlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeModal() {
+  document.getElementById("modal-overlay").classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+function openLightbox(url) {
+  document.getElementById("lightbox-img").src = url;
+  document.getElementById("lightbox").classList.add("open");
+}
+
+function closeLightbox() {
+  document.getElementById("lightbox").classList.remove("open");
+}
+
+document.querySelectorAll(".filter-btn").forEach(function(btn) {
+  btn.addEventListener("click", function() {
+    document.querySelectorAll(".filter-btn").forEach(function(b){ b.classList.remove("active"); });
+    btn.classList.add("active");
+    renderCards(btn.getAttribute("data-tag"));
+    window.scrollTo({top: document.getElementById("card-grid").offsetTop - 80, behavior: "smooth"});
+  });
+});
+document.getElementById("modal-close").addEventListener("click", closeModal);
+document.getElementById("modal-overlay").addEventListener("click", function(e) {
+  if (e.target === document.getElementById("modal-overlay")) closeModal();
+});
+document.getElementById("lightbox").addEventListener("click", closeLightbox);
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Escape") { closeModal(); closeLightbox(); }
+});
+
+// 启动：从数据库加载数据
+loadCases();
+</script>
+</body>
+</html>
